@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
+import java.util.Date;
+
 public record CouponDTO(
         @Valid
 
@@ -14,6 +16,6 @@ public record CouponDTO(
         @NotBlank(message = "DISCOUNT IS REQUIRED")
         Integer discount,
         @NotBlank(message = "VALID DATE IS REQUIRED")
-        Long valid
+        Date valid
 ) {
 }

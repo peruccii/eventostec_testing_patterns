@@ -30,5 +30,4 @@ public class AddressService {
                 addressBuilder.getUf(),
                 addressBuilder.getEvent()));
     }
-
 }

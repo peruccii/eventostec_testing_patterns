@@ -22,7 +22,7 @@ public class Coupon {
 
     private Integer discount;
 
-    private Long valid;
+    private Date valid;
 
     @ManyToOne // Um evento pode ter muitos cupons e um cupon pode pertecer a apenas um evento
     @JoinColumn(name = "event_id")

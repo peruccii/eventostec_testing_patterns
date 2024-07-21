@@ -1,5 +1,6 @@
 package com.eventostec.eventostec.services;
 
+import com.eventostec.eventostec.domain.coupon.builder.Coupon;
 import com.eventostec.eventostec.domain.coupon.builder.CouponBuilder;
 import com.eventostec.eventostec.dtos.CouponDTO;
 import com.eventostec.eventostec.presenters.CouponPresenter;
@@ -9,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -37,5 +41,9 @@ public class CouponService {
                 couponBuilder.getDiscount(),
                 couponBuilder.getValid()
         ));
+    }
+
+    public List<Coupon> consultCoupons(UUID eventId, Date currentDate) {
+        return couponRepository.findByEventIdAndValidAfter(eventId, currentDate);
     }
 }

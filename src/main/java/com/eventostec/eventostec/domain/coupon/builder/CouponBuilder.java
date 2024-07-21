@@ -2,6 +2,8 @@ package com.eventostec.eventostec.domain.coupon.builder;
 
 import com.eventostec.eventostec.domain.event.builder.Event;
 
+import java.util.Date;
+
 public class CouponBuilder {
 
     public Coupon coupon;
@@ -24,7 +26,7 @@ public class CouponBuilder {
         return this;
     }
 
-    public CouponBuilder valid(Long valid) {
+    public CouponBuilder valid(Date valid) {
         this.coupon.setValid(valid);
         return this;
     }

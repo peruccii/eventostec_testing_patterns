@@ -1,5 +1,6 @@
 package com.eventostec.eventostec.domain.event.builder;
 
+import com.eventostec.eventostec.domain.address.builder.Address;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,6 +33,9 @@ public class Event {
     private Boolean remote;
 
     private Date date;
+
+    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL)
+    private Address address;
 
     protected Event() {}
 }

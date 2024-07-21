@@ -1,8 +1,12 @@
 package com.eventostec.eventostec.services;
+import com.eventostec.eventostec.domain.address.builder.Address;
+import com.eventostec.eventostec.domain.coupon.builder.Coupon;
 import com.eventostec.eventostec.domain.event.builder.Event;
 import com.eventostec.eventostec.domain.event.builder.EventBuilder;
 import com.eventostec.eventostec.dtos.EventDTO;
+import com.eventostec.eventostec.presenters.EventDetailsPresenter;
 import com.eventostec.eventostec.presenters.EventPresenter;
+import com.eventostec.eventostec.repositories.IAddressRepository;
 import com.eventostec.eventostec.repositories.IEventRepository;
 import com.eventostec.eventostec.strategy.pack.EventStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
-
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -27,10 +29,16 @@ public class EventService {
     private IEventRepository eventRepository;
 
     @Autowired
+    private IAddressRepository addressRepository;
+
+    @Autowired
     private EventStrategy eventStrategy;
 
     @Autowired
     private AddressService addressService;
+
+    @Autowired
+    private CouponService couponService;
 
     private AmazonService amazonService;
 
@@ -59,7 +67,11 @@ public class EventService {
 
         if (!data.remote()) this.addressService.create(data, newEvent);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(new EventPresenter(newEvent.getTitle(), newEvent.getId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new EventPresenter(
+                newEvent.getTitle(),
+                newEvent.getId(),
+                newEvent.getAddress().getCity()
+        ));
 
     }
 
@@ -67,10 +79,49 @@ public class EventService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Event> eventsPage = this.eventRepository.findAllByOrderByUpcomingEvent(new Date(), pageable);
 
-        return ResponseEntity.ok(eventsPage.map(event -> new EventPresenter(event.getTitle(), event.getId())).stream().toList());
+        return ResponseEntity.ok(eventsPage.map(event -> new EventPresenter(
+                event.getTitle(),
+                event.getId(),
+                event.getAddress() != null ?  event.getAddress().getCity() : ""
+                )).stream().toList());
     }
 
-    public ResponseEntity<List<EventPresenter>> filterEvents(int page, int size, String city, String uf, Date startDate, Date endDate) {
+    public ResponseEntity<List<EventPresenter>> getFilteredEvents(int page, int size, String city, String uf, Date startDate, Date endDate) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Event> eventsPage = this.eventRepository.findFilteredEvents(city, uf, startDate, endDate, pageable);
 
+        return ResponseEntity.ok(eventsPage.map(event -> new EventPresenter(
+                event.getTitle(),
+                event.getId(),
+                event.getAddress() != null ?  event.getAddress().getCity() : ""
+        )).stream().toList());
+    }
+
+    public ResponseEntity<EventDetailsPresenter> getEventDetails(UUID eventId) {
+        var event = this.eventStrategy.validate(eventId);
+
+        List<Coupon> coupon = this.couponService.consultCoupons(eventId, new Date());
+
+        Optional<Address> address = this.addressRepository.findByEventId(eventId);
+
+        List<EventDetailsPresenter.CouponDTO> couponsPresenter = coupon.stream().map(
+                couponpresenter -> new EventDetailsPresenter.CouponDTO(
+                        couponpresenter.getCode(),
+                        couponpresenter.getDiscount(),
+                        couponpresenter.getValid()
+                )
+        ).collect(Collectors.toList());
+
+        return ResponseEntity.ok(new EventDetailsPresenter(
+                event.getId(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getDate(),
+                address.isPresent() ? address.get().getCity() : "",
+                address.isPresent() ? address.get().getUf() : "",
+                event.getImgUrl(),
+                event.getEventUrl(),
+                couponsPresenter
+        ));
     }
 }

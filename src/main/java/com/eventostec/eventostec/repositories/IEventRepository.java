@@ -16,7 +16,7 @@ public interface IEventRepository extends JpaRepository<Event, UUID> {
 
     Optional<Event> findEventByEventUrl(String eventUrl);
 
-    @Query("SELECT e FROM Event e WHERE e.date >= :currentDate")
+    @Query("SELECT e FROM Event e LEFT JOIN FETCH e.address a WHERE e.date >= :currentDate")
     Page<Event> findAllByOrderByUpcomingEvent(@Param("currentDate") Date currentDate, Pageable pageable);
 
     @Query("SELECT e.id AS id, e.title AS title, e.description AS description, e.date AS date, e.imgUrl AS imgUrl, e.eventUrl AS eventUrl, e.remote AS remote, a.city AS city, a.uf AS uf " +

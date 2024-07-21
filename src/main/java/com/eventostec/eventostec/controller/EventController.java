@@ -49,6 +49,6 @@ public class EventController {
             @RequestParam(required = false) String uf,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
-        return this.eventService.filterEvents(page, size, city, uf, startDate, endDate);
+        return this.eventService.getFilteredEvents(page, size, city, uf, startDate, endDate);
     }
 }

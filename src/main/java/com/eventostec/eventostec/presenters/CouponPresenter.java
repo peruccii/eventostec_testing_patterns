@@ -1,4 +1,6 @@
 package com.eventostec.eventostec.presenters;
 
-public record CouponPresenter(String code, Integer discount, Long valid) {
+import java.util.Date;
+
+public record CouponPresenter(String code, Integer discount, Date valid) {
 }
